@@ -7,11 +7,11 @@ function App() {
   const [notes, setNotes] = useState<noteType[]>([
     {
       id: 1,
-      text: "Check the description for my Frontend Interview Prep Course",
+      text: "Finish TypeScript project by the end of the week.",
     },
     {
       id: 2,
-      text: "Like this Video and Subscribe to Roadside Coder",
+      text: "Review Material UI v5 documentation for responsive design tips.",
     },
   ]);
 
