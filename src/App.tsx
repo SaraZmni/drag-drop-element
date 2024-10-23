@@ -8,10 +8,12 @@ function App() {
     {
       id: 1,
       text: "Finish TypeScript project by the end of the week.",
+      position: { x: 0, y: 0 },
     },
     {
       id: 2,
       text: "Review Material UI v5 documentation for responsive design tips.",
+      position: { x: 0, y: 0 },
     },
   ]);
 
