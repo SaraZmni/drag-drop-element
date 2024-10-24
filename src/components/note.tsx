@@ -1,9 +1,11 @@
-import { FC } from "react";
+import { FC, Ref } from "react";
 import { positionType } from "./note-types";
 
 interface NoteProps {
   content: string;
   initialPos: positionType;
+  ref: Ref<HTMLDivElement>;
+  onMouseDown:(event:MouseEvent) => void
 }
 
 const Note: FC<NoteProps> = (props) => {

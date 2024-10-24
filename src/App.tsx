@@ -13,7 +13,7 @@ function App() {
     {
       id: 2,
       text: "Review Material UI v5 documentation for responsive design tips.",
-      position: { x: 0, y: 0 },
+      position: { x: 150, y: 120 },
     },
   ]);
 
