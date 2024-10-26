@@ -8,6 +8,7 @@ import {
   useEffect,
   useRef,
 } from "react";
+
 import { noteType, positionType } from "./note-types";
 import Note from "./note";
 
@@ -28,6 +29,7 @@ const Notes: FC<NotesProps> = ({ notes = [], setNotes }) => {
   useEffect(() => {
     const savedNotes: { id: number; position: positionType }[] =
       JSON.parse(localStorage.getItem("notes") || "[]") || []; // Example saved notes with positions
+
 
     const updatedNotes = notes.map((note) => {
       const savedNote = savedNotes.find((sn) => sn.id === note.id); // Check if note is saved
@@ -114,6 +116,7 @@ const Notes: FC<NotesProps> = ({ notes = [], setNotes }) => {
     localStorage.setItem("notes", JSON.stringify(updatedNotes));
   };
 
+
   return (
     <div>
       {notes.map((note) => (
@@ -128,6 +131,7 @@ const Notes: FC<NotesProps> = ({ notes = [], setNotes }) => {
               : (noteRefs.current[note.id] = createRef<HTMLDivElement>())
           }
         />
+
       ))}
     </div>
   );
