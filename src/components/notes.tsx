@@ -1,4 +1,14 @@
-import { Dispatch, FC, RefObject, SetStateAction, createRef, useEffect, useRef } from "react";
+import {
+  Dispatch,
+  FC,
+  MouseEvent,
+  RefObject,
+  SetStateAction,
+  createRef,
+  useEffect,
+  useRef,
+} from "react";
+
 import { noteType, positionType } from "./note-types";
 import Note from "./note";
 
@@ -17,7 +27,9 @@ interface NoteRefs {
 
 const Notes: FC<NotesProps> = ({ notes = [], setNotes }) => {
   useEffect(() => {
-    const savedNotes: { id: number; position: positionType }[] = JSON.parse(localStorage.getItem('notes') ||'[]') || []; // Example saved notes with positions
+    const savedNotes: { id: number; position: positionType }[] =
+      JSON.parse(localStorage.getItem("notes") || "[]") || []; // Example saved notes with positions
+
 
     const updatedNotes = notes.map((note) => {
       const savedNote = savedNotes.find((sn) => sn.id === note.id); // Check if note is saved
@@ -45,18 +57,81 @@ const Notes: FC<NotesProps> = ({ notes = [], setNotes }) => {
     };
   };
 
-  const handeDragStart = (id:number, event:MouseEvent) => {
+  const handleDragStart = (
+    note: noteType,
+    event: MouseEvent<HTMLDivElement>
+  ) => {
+    event.preventDefault();
+    const { id } = note;
     const noteRef = noteRefs.current[id];
+
     if (noteRef && noteRef.current) {
-      const rect = noteRef.current.getBoundingClientRect()
-      console.log('rect',rect)
+      const rect = noteRef.current.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const offsetY = event.clientY - rect.top;
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        if (noteRef.current) {
+          const newX = moveEvent.clientX - offsetX;
+          const newY = moveEvent.clientY - offsetY;
+
+          noteRef.current.style.left = `${newX}px`;
+          noteRef.current.style.top = `${newY}px`;
+        }
+      };
+
+      const handleMouseUp = () => {
+        if (noteRef.current) {
+          const finalRect = noteRef.current.getBoundingClientRect();
+          const newPosition = {
+            x: finalRect.left + window.scrollX,
+            y: finalRect.top + window.scrollY,
+          };
+          updateNotePosition(id, newPosition);
+        }
+        document.removeEventListener(
+          "mousemove",
+          handleMouseMove as unknown as EventListener
+        );
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
+
+      document.addEventListener(
+        "mousemove",
+        handleMouseMove as unknown as EventListener
+      );
+      document.addEventListener(
+        "mouseup",
+        handleMouseUp as unknown as EventListener
+      );
     }
-  }
+  };
+
+  const updateNotePosition = (id: number, newPosition: positionType) => {
+    const updatedNotes = notes.map((note) =>
+      note.id === id ? { ...note, position: newPosition } : note
+    );
+
+    setNotes(updatedNotes);
+    localStorage.setItem("notes", JSON.stringify(updatedNotes));
+  };
+
 
   return (
     <div>
       {notes.map((note) => (
-        <Note key={note.id} content={note.text} initialPos={note.position} onMouseDown={(event) => handeDragStart(note.id,event)} ref={noteRefs.current[note.id] ? noteRefs.current[note.id] :(noteRefs.current[note.id] = createRef<HTMLDivElement>())}/>
+        <Note
+          key={note.id}
+          content={note.text}
+          initialPos={note.position}
+          onMouseDown={(event) => handleDragStart(note, event)}
+          ref={
+            noteRefs.current[note.id]
+              ? noteRefs.current[note.id]
+              : (noteRefs.current[note.id] = createRef<HTMLDivElement>())
+          }
+        />
+
       ))}
     </div>
   );
