@@ -1,4 +1,5 @@
 import { forwardRef, MouseEvent } from "react";
+
 import { positionType } from "./note-types";
 
 interface NoteProps {
