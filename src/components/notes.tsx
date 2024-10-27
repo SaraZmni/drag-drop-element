@@ -64,6 +64,7 @@ const Notes: FC<NotesProps> = ({ notes = [], setNotes }) => {
     event.preventDefault();
     const { id } = note;
     const noteRef = noteRefs.current[id];
+    const startPos = note.position;
 
     if (noteRef && noteRef.current) {
       const rect = noteRef.current.getBoundingClientRect();
@@ -87,7 +88,15 @@ const Notes: FC<NotesProps> = ({ notes = [], setNotes }) => {
             x: finalRect.left + window.scrollX,
             y: finalRect.top + window.scrollY,
           };
-          updateNotePosition(id, newPosition);
+
+          ////////////////// Overlap Logic ///////////////////
+
+          if (checkForOverlap(id)) {
+            noteRef.current.style.left = `${startPos.x}px`;
+            noteRef.current.style.top = `${startPos.y}px`;
+          } else {
+            updateNotePosition(id, newPosition);
+          }
         }
         document.removeEventListener(
           "mousemove",
@@ -95,7 +104,6 @@ const Notes: FC<NotesProps> = ({ notes = [], setNotes }) => {
         );
         document.removeEventListener("mouseup", handleMouseUp);
       };
-
       document.addEventListener(
         "mousemove",
         handleMouseMove as unknown as EventListener
@@ -104,6 +112,30 @@ const Notes: FC<NotesProps> = ({ notes = [], setNotes }) => {
         "mouseup",
         handleMouseUp as unknown as EventListener
       );
+    }
+  };
+
+  const checkForOverlap = (id: number) => {
+    const currentNoteRef = noteRefs.current[id].current;
+    if (currentNoteRef) {
+      const currentRect = currentNoteRef.getBoundingClientRect();
+
+      return notes.some((note) => {
+        if (note.id === id) return false;
+
+        const otherNoteRef = noteRefs.current[note.id].current;
+        if (otherNoteRef) {
+          const otherRect = otherNoteRef.getBoundingClientRect();
+          const overlap = !(
+            currentRect.right < otherRect.left ||
+            currentRect.left > otherRect.right ||
+            currentRect.bottom < otherRect.top ||
+            currentRect.top > otherRect.bottom
+          );
+
+          return overlap;
+        }
+      });
     }
   };
 
